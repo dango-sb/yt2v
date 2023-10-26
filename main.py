@@ -1,8 +1,26 @@
 import tkinter as tk
 from tkinter import ttk
 from pytube import YouTube
+import os
 
+# create savepath file
+# TODO Error if path is incorrect in savepath.txt
 save_path = 'D:\Music'
+savepath = open("savepath.txt", 'a+')
+savepath_video=savepath.readline()
+savepath_audio=savepath.readline()
+
+if savepath_video == '':
+    os.system("mkdir Video")
+    savepath_video= os.getcwd() + '\Video'
+    savepath.write(savepath_video)
+    
+if savepath_audio == '':
+    os.system("mkdir Audio")
+    savepath_audio= os.getcwd() + '\Audio'
+    savepath.write(savepath_audio)
+    
+savepath.close()
 
 # window
 root = tk.Tk()
@@ -54,7 +72,7 @@ def changeToVideo():
 frame = tk.Frame(root, padx=3, pady=3)  # Create a frame with padx and pady
 entry = tk.Entry(frame)
 downloadButton = ttk.Button(frame, text="Download", command=downloadAudio)
-log = tk.Text(root, width=40, height=10, padx=5)
+log = tk.Text(root, width=40, height=10, padx=5, state="disabled")
 formatLabel = ttk.Label(text='Audio', font=custom_font)
 
 # Menu
