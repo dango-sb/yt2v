@@ -4,7 +4,6 @@ from pytube import YouTube
 import os
 
 # create savepath file
-# TODO Error if path is incorrect in savepath.txt
 savepath = open("savepath.txt", 'a+')
 savepath_video=savepath.readline()
 savepath_audio=savepath.readline()
@@ -23,23 +22,29 @@ savepath.close()
 
 # window
 root = tk.Tk()
-root.title('Download Helper')
-root.geometry('500x200')
+root.title('YT2V')
+root.geometry('200x200')
 root.resizable(width=False, height=False)
 custom_font = ('Arial', 16)
 
-# Function to download audio
+#  Assistant functions
+# TODO Error if path is incorrect in savepath.txt
+
 def existsErr(file_path):
     if os.path.exists(file_path):
-        log.insert("end", "File with this name already exists.\n")
+        log.configure(text="This file already exists.")
         return True
     else:
         return False
     
+def validLink(url):
+    return ("https://youtu.be/" != url[:17] and "https://www.youtube.com/" != url[:24])
+
+# Function to download video 
 def downloadAudio():
     url = entry.get()
-    if ("https://youtu.be/" != url[:17] and "https://www.youtube.com/" != url[:24]):
-        log.insert("end", 'False link.\n')
+    if validLink(url):
+        log.configure(text='False link.')
     else:
         yt = YouTube(url)
         audio_stream = yt.streams.filter(only_audio=True, file_extension="mp4").first()
@@ -53,14 +58,14 @@ def downloadAudio():
         new_filename = original_filename.replace(".mp4", ".mp3")
         
         os.rename(os.path.join(savepath_audio, original_filename), os.path.join(savepath_audio, new_filename))
-        log.insert("end", f'Download of {new_filename} is finished successfully.\n')
+        log.configure(text = f'Download of {new_filename} is finished successfully.')
     entry.delete(0, "end")
 
 # Function to download video
 def downloadVideo():
     url = entry.get()
-    if ("https://youtu.be/" != url[:17] and "https://www.youtube.com/" != url[:24]):
-        log.insert("end", 'False link.\n')
+    if validLink(url):
+        log.configure(text = "False link.")
     else:
         yt = YouTube(url)
         audio_stream = yt.streams.filter(only_audio=True, file_extension="mp4").first()
@@ -71,7 +76,7 @@ def downloadVideo():
             return
         
         audio_stream.download(output_path=savepath_video)
-        log.insert("end", f'Download of {audio_stream.default_filename} is finished successfully.\n')
+        log.configure(text = f'Download of {audio_stream.default_filename} is finished successfully.')
     entry.delete(0, "end")
 
 # Function to switch to audio download
@@ -88,8 +93,8 @@ def changeToVideo():
 frame = tk.Frame(root, padx=3, pady=3)  # Create a frame with padx and pady
 entry = tk.Entry(frame)
 downloadButton = ttk.Button(frame, text="Download", command=downloadAudio)
-log = tk.Text(root, width=40, height=10, padx=5, state="normal")
-formatLabel = ttk.Label(text='Audio', font=custom_font)
+log = ttk.Label(root, wraplength=200)
+formatLabel = ttk.Label(text='Format???', font=custom_font)
 
 # Menu
 menubar = tk.Menu(root)
@@ -99,15 +104,15 @@ formatSub.add_command(label='Video', command=changeToVideo)
 menubar.add_cascade(label='Format', menu=formatSub)
 
 # Configure grid layout
-root.columnconfigure((0, 1), weight=1)
-root.rowconfigure((0, 1, 2, 3), weight=1)
+root.columnconfigure((0), weight=1)
+root.rowconfigure((0, 1, 2), weight=1)
 
 # Place widgets
 frame.grid(row=1, column=0)
 formatLabel.grid(row=0, column=0)
 entry.grid(row=1, column=0, sticky='wes')
 downloadButton.grid(row=2, column=0, sticky='n')
-log.grid(row=0, column=1, rowspan=4)
+log.grid(row=3, column=0, sticky='wne')
 
 # Run
 root.config(menu=menubar)
